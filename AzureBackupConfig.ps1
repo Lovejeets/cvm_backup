@@ -137,7 +137,7 @@ process {
     @"
 `$CredPass = ConvertTo-SecureString -String `$args[1] -AsPlainText -Force
 `$Cred = New-Object System.Management.Automation.PSCredential (`$args[0], `$CredPass)
-Connect-AzureRmAccount -Credential `$Cred -ServicePrincipal -Tenant $TenantId -Subscription $SubscriptionId
+Connect-AzureRmAccount -Credential `$Cred -ServicePrincipal -Tenant $TenantId -Subscription $Subscription
 # Download Vault Settings
 Write-Output -InputObject "Downloading vault settings."
 `$Retry = 0
