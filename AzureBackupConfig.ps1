@@ -100,11 +100,11 @@ process {
     }
 
     # Install Modules
-    Write-Output -InputObject "Installing Nuget and AzureRM PowerShell modules."
+    Write-Output -InputObject "Installing Nuget and Az PowerShell modules."
     Install-PackageProvider -Name "NuGet" -Confirm:$false -Force | Out-Null
-    Install-Module -Name "AzureRM" -RequiredVersion 2.4.0 -Confirm:$false -Force
-    Install-Module -Name "AzureRM.RecoveryServices" -Confirm:$false -Force
-    Install-Module -Name "AzureRM.RecoveryServices.SiteRecovery" -Confirm:$false -Force
+    Install-Module -Name "Az" -RequiredVersion 2.4.0 -Confirm:$false -Force
+    Install-Module -Name "Az.RecoveryServices" -Confirm:$false -Force
+    Install-Module -Name "Az.RecoveryServices.SiteRecovery" -Confirm:$false -Force
 
     # Download the MARS agent
     Write-Output -InputObject "Downloading MARS agent."
@@ -122,18 +122,18 @@ process {
         Write-Output -InputObject "Logging into public Azure with tenant ID: $TenantId"
         $CredPass = ConvertTo-SecureString $ClientSecret -AsPlainText -Force
         $Credentials = New-Object System.Management.Automation.PSCredential ($ClientId, $CredPass)
-        Connect-AzureRmAccount -Credential $Credentials -ServicePrincipal -Tenant $TenantId
+        Connect-AzAccount -Credential $Credentials -ServicePrincipal -Tenant $TenantId
 
         if (-not $ExistingRG) {
             # Create resource group
             Write-Output -InputObject "Creating resource group: $AzureResourceGroup in public Azure."
-            New-AzureRmResourceGroup -Name $AzureResourceGroup -Location $AzureLocation | Out-Null
+            New-AzResourceGroup -Name $AzureResourceGroup -Location $AzureLocation | Out-Null
         }
 
         # Create the vault
         Write-Output -InputObject "Creating backup vault: $BackupVault in resource group: $AzureResourceGroup in public Azure."
-        $BackupVault = New-AzureRmRecoveryServicesVault -Name $VaultName -ResourceGroupName $AzureResourceGroup -Location $AzureLocation
-        Set-AzureRmRecoveryServicesBackupProperties -Vault $BackupVault -BackupStorageRedundancy LocallyRedundant
+        $BackupVault = New-AzRecoveryServicesVault -Name $VaultName -ResourceGroupName $AzureResourceGroup -Location $AzureLocation
+        Set-AzRecoveryServicesBackupProperties -Vault $BackupVault -BackupStorageRedundancy LocallyRedundant
     }
 
     # Retrieve vault credentials file
@@ -141,14 +141,14 @@ process {
     @"
 `$CredPass = ConvertTo-SecureString -String `$args[1] -AsPlainText -Force
 `$Cred = New-Object System.Management.Automation.PSCredential (`$args[0], `$CredPass)
-Connect-AzureRmAccount -Credential `$Cred -ServicePrincipal -Tenant $TenantId -Subscription $SubscriptionId
+Connect-AzAccount -Credential `$Cred -ServicePrincipal -Tenant $TenantId -Subscription $SubscriptionId
 # Download Vault Settings
 Write-Output -InputObject "Downloading vault settings."
 `$Retry = 0
 while (!`$VaultCredPath -and `$Retry -lt 20) {
     # Get Vault
-    `$BackupVaultGet = Get-AzureRmRecoveryServicesVault -Name $VaultName -ResourceGroupName $AzureResourceGroup
-    `$VaultCredPath = Get-AzureRmRecoveryServicesVaultSettingsFile -Vault `$BackupVaultGet -Path $TempFilesPath -Backup
+    `$BackupVaultGet = Get-AzRecoveryServicesVault -Name $VaultName -ResourceGroupName $AzureResourceGroup
+    `$VaultCredPath = Get-AzRecoveryServicesVaultSettingsFile -Vault `$BackupVaultGet -Path $TempFilesPath -Backup
     `$VaultCredPath.FilePath | Out-File (Join-Path -Path $TempFilesPath -ChildPath "VaultCredential.txt") -Encoding ascii -Force
     Start-Sleep -Seconds 5
     `$Retry ++
