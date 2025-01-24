@@ -27,7 +27,11 @@ param (
 
     [Parameter(Mandatory = $false)]
     [String]
-    $AzureLocation = "UK West",
+    $SubscriptionId,
+
+    [Parameter(Mandatory = $false)]
+    [String]
+    $AzureLocation = "UAE North",
 
     [Parameter(Mandatory = $false)]
     [Switch]
@@ -137,7 +141,7 @@ process {
     @"
 `$CredPass = ConvertTo-SecureString -String `$args[1] -AsPlainText -Force
 `$Cred = New-Object System.Management.Automation.PSCredential (`$args[0], `$CredPass)
-Connect-AzureRmAccount -Credential `$Cred -ServicePrincipal -Tenant $TenantId -Subscription $Subscription
+Connect-AzureRmAccount -Credential `$Cred -ServicePrincipal -Tenant $TenantId -Subscription $SubscriptionId
 # Download Vault Settings
 Write-Output -InputObject "Downloading vault settings."
 `$Retry = 0
