@@ -31,6 +31,10 @@ param (
 
     [Parameter(Mandatory = $false)]
     [String]
+    $SecurityPin,
+
+    [Parameter(Mandatory = $false)]
+    [String]
     $AzureLocation = "UAE North",
 
     [Parameter(Mandatory = $false)]
@@ -169,7 +173,7 @@ while (!`$VaultCredPath -and `$Retry -lt 20) {
     Start-OBRegistration -VaultCredentials $VaultCredPath -Confirm:$false
 
     # Set encryption key for MARS agent
-    ConvertTo-SecureString -String $EncryptionKey -AsPlainText -Force | Set-OBMachineSetting
+    ConvertTo-SecureString -String $EncryptionKey -AsPlainText -Force | Set-OBMachineSetting -SecurityPin $SecurityPin
 
     if (-not $NoSchedule) {
         # Configure backup settings
