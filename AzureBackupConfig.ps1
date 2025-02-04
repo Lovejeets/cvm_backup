@@ -106,12 +106,12 @@ process {
 
     $Logfile = "c:\temp\backup-extension.log"
 
-Function LogWrite
-{
-   Param ([string]$logstring)
-
-   Add-content $Logfile -value $logstring
-}
+#Function LogWrite
+#{
+#   Param ([string]$logstring)
+#
+#   Add-content $Logfile -value $logstring
+#}
 
     # Install Modules
     LogWrite -InputObject "Installing Nuget and Az PowerShell modules."
