@@ -209,7 +209,7 @@ while (!`$VaultCredPath -and `$Retry -lt 20) {
 
         $FileExclusions = New-OBFileSpec -FileSpec @($TempFilesPath) -Exclude
         Add-OBFileSpec -Policy $BackupPolicy -FileSpec $FileInclusions
-        Add-OBFileSpec -Policy $BackupPolicy -FileSpec $FileExclusions
+        #Add-OBFileSpec -Policy $BackupPolicy -FileSpec $FileExclusions
 
         # Remove the (possibly) existing policy
         try {
@@ -220,7 +220,7 @@ while (!`$VaultCredPath -and `$Retry -lt 20) {
         }
 
         # Apply the new policy
-        Set-OBPolicy -Policy $BackupPolicy -Confirm:$false
+        Set-OBPolicy -Policy $BackupPolicy -SecurityPin $SecurityPin -Confirm:$false
     }
 
     # Start a backup if required
