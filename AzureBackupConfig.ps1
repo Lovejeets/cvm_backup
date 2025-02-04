@@ -83,14 +83,6 @@ param (
     $NoSchedule
 )
 
-$Logfile = "c:\temp\backup-extension.log"
-
-Function LogWrite
-{
-   Param ([string]$logstring)
-
-   Add-content $Logfile -value $logstring
-}
 
 begin {
     # Change the object type to Array and remove spaces
@@ -111,6 +103,15 @@ process {
         New-Item -ItemType Directory -Path $TempFilesPath -Force | Out-Null
         LogWrite -InputObject "Created directory: $TempFilesPath"
     }
+
+    $Logfile = "c:\temp\backup-extension.log"
+
+Function LogWrite
+{
+   Param ([string]$logstring)
+
+   Add-content $Logfile -value $logstring
+}
 
     # Install Modules
     LogWrite -InputObject "Installing Nuget and Az PowerShell modules."
