@@ -108,7 +108,7 @@ process {
     Write-Output -InputObject "Installing Nuget and Az PowerShell modules."
     Install-PackageProvider -Name "NuGet" -Confirm:$false -Force | Out-Null
     Install-Module -Name "Az" -RequiredVersion 2.4.0 -Confirm:$false -AllowClobber -Force
-    #Install-Module -Name "Az.RecoveryServices" -Confirm:$false -Force
+    Install-Module -Name "Az.RecoveryServices" -Confirm:$false -Force
 
     # Download the MARS agent
     Write-Output -InputObject "Downloading MARS agent."
