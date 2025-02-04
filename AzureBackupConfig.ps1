@@ -107,7 +107,7 @@ process {
     Write-Output -InputObject "Installing Nuget and Az PowerShell modules."
     Install-PackageProvider -Name "NuGet" -Confirm:$false -Force | Out-Null
     Install-Module -Name "Az" -RequiredVersion 2.4.0 -Confirm:$false -AllowClobber -Force
-    Install-Module -Name "Az.RecoveryServices" -Confirm:$false -Force
+    #Install-Module -Name "Az.RecoveryServices" -Confirm:$false -Force
 
     # Download the MARS agent
     Write-Output -InputObject "Downloading MARS agent."
@@ -173,7 +173,8 @@ while (!`$VaultCredPath -and `$Retry -lt 20) {
     Start-OBRegistration -VaultCredentials $VaultCredPath -Confirm:$false
 
     # Set encryption key for MARS agent
-    ConvertTo-SecureString -String $EncryptionKey -AsPlainText -Force | Set-OBMachineSetting -SecurityPin $SecurityPin
+    $PassPhrase = ConvertTo-SecureString -String $EncryptionKey -AsPlainText -Force
+    Set-OBMachineSetting -EncryptionPassPhrase $PassPhrase -SecurityPin $SecurityPin -PassphraseSaveLocation "C:\temp"
 
     if (-not $NoSchedule) {
         # Configure backup settings
