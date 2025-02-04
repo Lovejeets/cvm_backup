@@ -169,18 +169,18 @@ while (!`$VaultCredPath -and `$Retry -lt 20) {
     # Import MS Online Backup module
     Import-Module -Name "C:\Program Files\Microsoft Azure Recovery Services Agent\bin\Modules\MSOnlineBackup"
 
-    $failingreg= $true
-    while ( $failingReg) {
-    try {
+    #$failingreg= $true
+    #while ( $failingReg) {
+    #try {
      # Register MARS agent to Recovery Services vault
     Write-Output -InputObject "Registering MARS agent to Recovery Services vault."
     Start-OBRegistration -VaultCredentials $VaultCredPath -Confirm:$false
 
-    $failingreg=$false
-    }
-catch {
-   start-sleep -Seconds 5
-   }}
+    #$failingreg=$false
+    #}
+    #catch {
+    #start-sleep -Seconds 5
+     #}}
     # Set encryption key for MARS agent
     $PassPhrase = ConvertTo-SecureString -String $EncryptionKey -AsPlainText -Force
     Set-OBMachineSetting -EncryptionPassPhrase $PassPhrase -SecurityPin $SecurityPin -PassphraseSaveLocation "C:\temp"
