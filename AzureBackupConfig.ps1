@@ -101,50 +101,41 @@ process {
     # Initialise TempFilesPath folder
     if (-not (Test-Path -Path $TempFilesPath)) {
         New-Item -ItemType Directory -Path $TempFilesPath -Force | Out-Null
-        LogWrite -InputObject "Created directory: $TempFilesPath"
+        Write-Output -InputObject "Created directory: $TempFilesPath"
     }
 
-    $Logfile = "c:\temp\backup-extension.log"
-
-#Function LogWrite
-#{
-#   Param ([string]$logstring)
-#
-#   Add-content $Logfile -value $logstring
-#}
-
     # Install Modules
-    LogWrite -InputObject "Installing Nuget and Az PowerShell modules."
+    Write-Output -InputObject "Installing Nuget and Az PowerShell modules."
     Install-PackageProvider -Name "NuGet" -Confirm:$false -Force | Out-Null
     Install-Module -Name "Az" -RequiredVersion 2.4.0 -Confirm:$false -AllowClobber -Force
     #Install-Module -Name "Az.RecoveryServices" -Confirm:$false -Force
 
     # Download the MARS agent
-    LogWrite -InputObject "Downloading MARS agent."
+    Write-Output -InputObject "Downloading MARS agent."
     $OutPath = Join-Path -Path $TempFilesPath -ChildPath "MARSAgentInstaller.exe"
     $WebClient = New-Object System.Net.WebClient
     $WebClient.DownloadFile("https://aka.ms/azurebackup_agent", $OutPath)
 
     # Install the MARS agent
-    LogWrite -InputObject "Installing MARS agent"
+    Write-Output -InputObject "Installing MARS agent"
     & $OutPath /q
 
     if (-not $ExistingVault) {
         # Create and configure a vault, then retrieve settings
         ## Login to public azure
-        LogWrite -InputObject "Logging into public Azure with tenant ID: $TenantId"
+        Write-Output -InputObject "Logging into public Azure with tenant ID: $TenantId"
         $CredPass = ConvertTo-SecureString $ClientSecret -AsPlainText -Force
         $Credentials = New-Object System.Management.Automation.PSCredential ($ClientId, $CredPass)
         Connect-AzAccount -Credential $Credentials -ServicePrincipal -Tenant $TenantId
 
         if (-not $ExistingRG) {
             # Create resource group
-            LogWrite -InputObject "Creating resource group: $AzureResourceGroup in public Azure."
+            Write-Output -InputObject "Creating resource group: $AzureResourceGroup in public Azure."
             New-AzResourceGroup -Name $AzureResourceGroup -Location $AzureLocation | Out-Null
         }
 
         # Create the vault
-        LogWrite -InputObject "Creating backup vault: $BackupVault in resource group: $AzureResourceGroup in public Azure."
+        Write-Output -InputObject "Creating backup vault: $BackupVault in resource group: $AzureResourceGroup in public Azure."
         $BackupVault = New-AzRecoveryServicesVault -Name $VaultName -ResourceGroupName $AzureResourceGroup -Location $AzureLocation
         Set-AzRecoveryServicesBackupProperties -Vault $BackupVault -BackupStorageRedundancy LocallyRedundant
     }
@@ -156,7 +147,7 @@ process {
 `$Cred = New-Object System.Management.Automation.PSCredential (`$args[0], `$CredPass)
 Connect-AzAccount -Credential `$Cred -ServicePrincipal -Tenant $TenantId -Subscription $SubscriptionId
 # Download Vault Settings
-LogWrite -InputObject "Downloading vault settings."
+Write-Output -InputObject "Downloading vault settings."
 `$Retry = 0
 while (!`$VaultCredPath -and `$Retry -lt 20) {
     # Get Vault
@@ -166,7 +157,7 @@ while (!`$VaultCredPath -and `$Retry -lt 20) {
     Start-Sleep -Seconds 5
     `$Retry ++
     if (`$Retry -eq 20) {
-        LogWrite -InputObject "Unable to retrieve Vault Credentials file"
+        Write-Output -InputObject "Unable to retrieve Vault Credentials file"
         break
     }
 }
@@ -178,25 +169,25 @@ while (!`$VaultCredPath -and `$Retry -lt 20) {
     # Import MS Online Backup module
     Import-Module -Name "C:\Program Files\Microsoft Azure Recovery Services Agent\bin\Modules\MSOnlineBackup"
 
-$failingreg= $true
-while ( $failingReg) {
-try {
-    # Register MARS agent to Recovery Services vault
-    LogWrite -InputObject "Registering MARS agent to Recovery Services vault."
+    $failingreg= $true
+    while ( $failingReg) {
+    try {
+     # Register MARS agent to Recovery Services vault
+    Write-Output -InputObject "Registering MARS agent to Recovery Services vault."
     Start-OBRegistration -VaultCredentials $VaultCredPath -Confirm:$false
 
     $failingreg=$false
-}
+    }
 catch {
-start-sleep -Seconds 5
-}}
+   start-sleep -Seconds 5
+   }}
     # Set encryption key for MARS agent
     $PassPhrase = ConvertTo-SecureString -String $EncryptionKey -AsPlainText -Force
     Set-OBMachineSetting -EncryptionPassPhrase $PassPhrase -SecurityPin $SecurityPin -PassphraseSaveLocation "C:\temp"
 
     if (-not $NoSchedule) {
         # Configure backup settings
-        LogWrite -InputObject "Configuring backup settings"
+        Write-Output -InputObject "Configuring backup settings"
 
         ## Create blank backup policy
         $BackupPolicy = New-OBPolicy
@@ -225,7 +216,7 @@ start-sleep -Seconds 5
             Get-OBPolicy | Remove-OBPolicy -Confirm:$false -ErrorAction Stop
         }
         catch {
-            LogWrite -InputObject "No existing policy to remove."
+            Write-Output -InputObject "No existing policy to remove."
         }
 
         # Apply the new policy
